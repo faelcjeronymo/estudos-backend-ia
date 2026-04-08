@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap — Backend + IA</title>
+<style>
+  /* ============================================================
+     TOKENS & RESET
+  ============================================================ */
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg:           #0a0a0f;
+    --bg2:          #111118;
+    --bg3:          #1a1a24;
+    --border:       #2a2a38;
+    --border-h:     #3d3d55;
+    --text:         #e8e8f0;
+    --text-muted:   #6b6b88;
+    --text-dim:     #9999b8;
+    --ai:           #7c6af7;
+    --ai-glow:      rgba(124,106,247,.25);
+    --ai-dim:       rgba(124,106,247,.12);
+    --be:           #2dd4a0;
+    --be-glow:      rgba(45,212,160,.25);
+    --be-dim:       rgba(45,212,160,.10);
+    --final:        #f5a623;
+    --final-glow:   rgba(245,166,35,.25);
+    --final-dim:    rgba(245,166,35,.10);
+    --done:         #3a3a4f;
+    --done-text:    #55556a;
+    --radius:       10px;
+    --radius-lg:    16px;
+  }
+  [data-theme="light"] {
+    --bg:           #f4f4f8;
+    --bg2:          #ffffff;
+    --bg3:          #eaeaf2;
+    --border:       #d4d4e2;
+    --border-h:     #b0b0cc;
+    --text:         #1a1a2e;
+    --text-muted:   #8888a8;
+    --text-dim:     #5555778;
+    --done:         #e8e8f2;
+    --done-text:    #9999b8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    transition: background .3s, color .3s;
+  }
+
+  /* ============================================================
+     SCROLLBAR
+  ============================================================ */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ============================================================
+     LAYOUT
+  ============================================================ */
+  .shell {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 100px;
+  }
+
+  /* ============================================================
+     HEADER
+  ============================================================ */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .header-left {}
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+  }
+  h1 span { color: var(--ai); }
+  .subtitle {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 420px;
+  }
+
+  /* ============================================================
+     CONTROLS (top-right)
+  ============================================================ */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .theme-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+  .theme-btn:hover { border-color: var(--border-h); background: var(--bg2); }
+
+  .filter-row {
+    display: flex;
+    gap: 6px;
+  }
+  .filter-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .filter-btn.active,
+  .filter-btn:hover {
+    color: var(--text);
+    border-color: var(--border-h);
+  }
+  .filter-btn[data-filter="all"].active    { border-color: var(--ai); color: var(--ai); }
+  .filter-btn[data-filter="done"].active   { border-color: var(--be); color: var(--be); }
+  .filter-btn[data-filter="pending"].active{ border-color: var(--final); color: var(--final); }
+
+  /* ============================================================
+     PROGRESS BAR
+  ============================================================ */
+  .progress-wrap {
+    margin-bottom: 48px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .progress-pct {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--ai);
+    letter-spacing: -.02em;
+  }
+  .progress-bar-bg {
+    height: 6px;
+    background: var(--bg3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ai), var(--be));
+    border-radius: 3px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+  .progress-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 12px;
+  }
+  .stat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .stat strong { color: var(--text-dim); }
+
+  /* ============================================================
+     LEGEND
+  ============================================================ */
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: .05em;
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-dot.ai     { background: var(--ai); }
+  .legend-dot.be     { background: var(--be); }
+  .legend-dot.final  { background: var(--final); }
+
+  /* ============================================================
+     SECTION (month)
+  ============================================================ */
+  .section {
+    margin-bottom: 40px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .section-tag.ai    { background: var(--ai-dim);    color: var(--ai);    border: 1px solid rgba(124,106,247,.3); }
+  .section-tag.be    { background: var(--be-dim);    color: var(--be);    border: 1px solid rgba(45,212,160,.3); }
+  .section-tag.mixed { background: var(--bg3);       color: var(--text-muted); border: 1px solid var(--border); }
+  .section-tag.final { background: var(--final-dim); color: var(--final); border: 1px solid rgba(245,166,35,.3); }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ============================================================
+     WEEK CARD (accordion)
+  ============================================================ */
+  .week-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .week-card:hover { border-color: var(--border-h); }
+  .week-card.track-ai    { border-left: 3px solid var(--ai); }
+  .week-card.track-be    { border-left: 3px solid var(--be); }
+  .week-card.track-final { border-left: 3px solid var(--final); }
+  .week-card.all-done    { opacity: .55; }
+
+  .week-trigger {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 18px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    transition: background .2s;
+  }
+  .week-trigger:hover { background: var(--bg3); }
+
+  .week-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .15em;
+    color: var(--text-muted);
+    min-width: 52px;
+    text-transform: uppercase;
+  }
+  .week-main { flex: 1; }
+  .week-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .week-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .week-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .week-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .chevron {
+    width: 18px; height: 18px;
+    color: var(--text-muted);
+    transition: transform .3s;
+    flex-shrink: 0;
+  }
+  .week-card.open .chevron { transform: rotate(180deg); }
+
+  /* ============================================================
+     WEEK BODY
+  ============================================================ */
+  .week-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .week-card.open .week-body { display: block; }
+
+  /* ============================================================
+     SECTION GROUPS inside week
+  ============================================================ */
+  .group { margin-top: 18px; }
+  .group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .group-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ============================================================
+     CHECKLIST ITEMS
+  ============================================================ */
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    transition: opacity .2s;
+  }
+  .item:last-child { border-bottom: none; }
+  .item.done .item-title { text-decoration: line-through; color: var(--done-text); }
+  .item.done .item-desc  { color: var(--done-text); }
+
+  /* hide items based on filter */
+  .filter-done    .item:not(.done)  { display: none; }
+  .filter-pending .item.done        { display: none; }
+
+  .cb-wrap {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .cb {
+    appearance: none;
+    width: 17px; height: 17px;
+    border: 2px solid var(--border-h);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: background .2s, border-color .2s;
+  }
+  .cb:checked {
+    background: var(--be);
+    border-color: var(--be);
+  }
+  .cb:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px; top: 0px;
+    width: 5px; height: 9px;
+    border: 2px solid #0a0a0f;
+    border-left: none; border-top: none;
+    transform: rotate(45deg);
+  }
+
+  .item-content { flex: 1; }
+  .item-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    transition: color .2s;
+  }
+  .item-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+  .item-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ai);
+    text-decoration: none;
+    transition: opacity .2s;
+  }
+  .item-link:hover { opacity: .7; }
+  .item-link.be  { color: var(--be); }
+  .item-link.fin { color: var(--final); }
+
+  /* ============================================================
+     FINAL CHALLENGE SECTION
+  ============================================================ */
+  .final-section {
+    margin-top: 60px;
+    border: 1px solid rgba(245,166,35,.35);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--bg2) 0%, rgba(245,166,35,.04) 100%);
+  }
+  .final-header {
+    padding: 28px 28px 0;
+  }
+  .final-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--final);
+    margin-bottom: 10px;
+  }
+  .final-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .final-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+  .final-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 28px;
+  }
+  .final-body { padding: 24px 28px 28px; }
+
+  .mission-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .final-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .final-item:last-child { border-bottom: none; }
+  .final-item.done .item-title { text-decoration: line-through; color: var(--done-text); }
+
+  /* victory screen */
+  .victory {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 48px 28px;
+  }
+  .victory.show { display: flex; }
+  .victory-icon {
+    font-size: 52px;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.08); }
+  }
+  .victory-title {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: var(--final);
+    margin-bottom: 10px;
+  }
+  .victory-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 380px;
+  }
+
+  /* ============================================================
+     HIDDEN CLASS (for filter)
+  ============================================================ */
+  .week-card.hidden { display: none; }
+
+  /* ============================================================
+     RESPONSIVE
+  ============================================================ */
+  @media (max-width: 600px) {
+    .header { flex-direction: column; }
+    .controls { align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <p class="eyebrow">// seu roadmap pessoal</p>
+      <h1>Backend <span>+ IA</span></h1>
+      <p class="subtitle">Do chat ao agente. Da API ao sistema. Uma trilha realista pra quem quer ser insubstituível.</p>
+    </div>
+    <div class="controls">
+      <button class="theme-btn" id="themeBtn">☀ light mode</button>
+      <div class="filter-row">
+        <button class="filter-btn active" data-filter="all">tudo</button>
+        <button class="filter-btn" data-filter="done">concluído</button>
+        <button class="filter-btn" data-filter="pending">pendente</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-header">
+      <span class="progress-label">// progresso geral</span>
+      <span class="progress-pct" id="pct">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="bar"></div>
+    </div>
+    <div class="progress-stats">
+      <span class="stat"><strong id="statDone">0</strong> concluídos</span>
+      <span class="stat"><strong id="statTotal">0</strong> total</span>
+      <span class="stat"><strong id="statLeft">0</strong> restantes</span>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot ai"></span> Trilha IA</div>
+    <div class="legend-item"><span class="legend-dot be"></span> Trilha Backend</div>
+    <div class="legend-item"><span class="legend-dot final"></span> Projeto Final</div>
+  </div>
+
+  <!-- ============================================================
+       MÊS 1
+  ============================================================ -->
+  <div class="section" id="mes1">
+    <div class="section-header">
+      <span class="section-tag ai">Mês 1</span>
+      <span class="section-title">Fundamentos de IA</span>
+      <span class="section-line"></span>
+    </div>
+
+    <!-- S1 -->
+    <div class="week-card track-ai" data-week="s1">
+      <button class="week-trigger" onclick="toggleWeek('s1')">
+        <span class="week-num">Semana 1</span>
+        <div class="week-main">
+          <div class="week-title">O que é um LLM</div>
+          <div class="week-sub">Fundamentos reais de como o modelo funciona</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s1">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s1">
+
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s1-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s1-1"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeo: "Intro to Large Language Models" — Andrej Karpathy</div>
+              <div class="item-desc">1h. O melhor ponto de entrada. Explica tokens, treinamento, fine-tuning, alucinações e agentes sem exigir matemática.</div>
+              <a class="item-link" href="https://www.youtube.com/watch?v=zjkBMFhNj_g" target="_blank">↗ youtube.com/@AndrejKarpathy</a>
+            </div>
+          </div>
+          <div class="item" data-id="s1-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s1-2"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: Hipsters.tech — "Inteligência Artificial com IA"</div>
+              <div class="item-desc">Contexto BR sobre o cenário atual de LLMs. Bom pra vocabulário.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s1-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s1-3"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: Akitando — "Entendendo COMO ChatGPT Funciona" (#142)</div>
+              <div class="item-desc">Reforço do Karpathy em PT-BR com a visão crítica do Akita.</div>
+              <a class="item-link" href="https://akitaonrails.com" target="_blank">↗ akitaonrails.com</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">📖 Leitura</div>
+          <div class="item" data-id="s1-4">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s1-4"></div>
+            <div class="item-content">
+              <div class="item-title">Artigo: "The busy person's intro to LLMs" (versão texto do Karpathy)</div>
+              <div class="item-desc">Transcrição comentada do talk. Ideal pra revisão depois de assistir o vídeo.</div>
+              <a class="item-link" href="https://ppaolo.substack.com/p/introduction-to-large-language-models-llms" target="_blank">↗ Substack</a>
+            </div>
+          </div>
+          <div class="item" data-id="s1-5">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s1-5"></div>
+            <div class="item-content">
+              <div class="item-title">Artigo: RANT "IA acabou com os programadores?" — Akita</div>
+              <div class="item-desc">Visão pragmática e sem hype sobre onde a IA realmente está hoje.</div>
+              <a class="item-link" href="https://akitaonrails.com/2026/02/08/rant-ia-acabou-com-programadores/" target="_blank">↗ akitaonrails.com</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /s1 -->
+
+    <!-- S2 -->
+    <div class="week-card track-ai" data-week="s2">
+      <button class="week-trigger" onclick="toggleWeek('s2')">
+        <span class="week-num">Semana 2</span>
+        <div class="week-main">
+          <div class="week-title">Contexto, Tokens e System Prompt</div>
+          <div class="week-sub">Os controles que você tem sobre qualquer LLM</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s2">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s2">
+
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s2-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s2-1"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeo: "Deep Dive into LLMs like ChatGPT" — Andrej Karpathy</div>
+              <div class="item-desc">3h31. Segunda parte da jornada com Karpathy. Aprofunda LLM Psychology: memória, alucinação, tool use.</div>
+              <a class="item-link" href="https://www.youtube.com/watch?v=7xTGNNLPyMI" target="_blank">↗ YouTube</a>
+            </div>
+          </div>
+          <div class="item" data-id="s2-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s2-2"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: "How I use LLMs" — Andrej Karpathy</div>
+              <div class="item-desc">O próprio Karpathy mostrando como usa LLMs no dia a dia. Prático e direto.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">📖 Leitura</div>
+          <div class="item" data-id="s2-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s2-3"></div>
+            <div class="item-content">
+              <div class="item-title">Artigo: "How I think about LLM prompting" — Simon Willison</div>
+              <div class="item-desc">Explica contexto, tokens e janela de contexto de forma concisa. Referência obrigatória.</div>
+              <a class="item-link" href="https://simonwillison.net" target="_blank">↗ simonwillison.net</a>
+            </div>
+          </div>
+          <div class="item" data-id="s2-4">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s2-4"></div>
+            <div class="item-content">
+              <div class="item-title">Prática: experimente system prompts diferentes no Claude</div>
+              <div class="item-desc">Muda o tone, as restrições, o papel. Observe como a resposta muda. 30min no fim de semana.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /s2 -->
+
+    <!-- S3 -->
+    <div class="week-card track-ai" data-week="s3">
+      <button class="week-trigger" onclick="toggleWeek('s3')">
+        <span class="week-num">Semana 3</span>
+        <div class="week-main">
+          <div class="week-title">Prompt Engineering</div>
+          <div class="week-sub">Técnica real, não truques de internet</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s3">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s3">
+
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s3-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s3-1"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: "Engenharia de Prompt na prática" — Hipsters.tech</div>
+              <div class="item-desc">Panorama BR das técnicas mais usadas no dia a dia.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s3-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s3-2"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: "Agile Vibe Coding" — Deyvin + Akita</div>
+              <div class="item-desc">A conversa que você viu no vídeo do Deyvin. Boa pra solidificar a mentalidade Anti-Vibe.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">📖 Leitura + prática</div>
+          <div class="item" data-id="s3-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s3-3"></div>
+            <div class="item-content">
+              <div class="item-title">Docs: Prompt Engineering Overview — Anthropic</div>
+              <div class="item-desc">Guia oficial com chain-of-thought, few-shot, XML structuring e mais. Leitura essencial.</div>
+              <a class="item-link" href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank">↗ docs.anthropic.com</a>
+            </div>
+          </div>
+          <div class="item" data-id="s3-4">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s3-4"></div>
+            <div class="item-content">
+              <div class="item-title">Artigo: "Anti-Vibe Coding: RANT do Akita" (fev/2026)</div>
+              <div class="item-desc">O manifesto do Akita sobre como usar IA do jeito certo vs. o jeito errado.</div>
+              <a class="item-link" href="https://akitaonrails.com/2026/02/24/rant-o-akita-abriu-as-pernas-pra-ia/" target="_blank">↗ akitaonrails.com</a>
+            </div>
+          </div>
+          <div class="item" data-id="s3-5">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s3-5"></div>
+            <div class="item-content">
+              <div class="item-title">Prática: reescreva 3 prompts que você usa hoje aplicando as técnicas da Anthropic</div>
+              <div class="item-desc">Compare antes/depois. Documente o que melhorou.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /s3 -->
+
+    <!-- S4 -->
+    <div class="week-card track-ai" data-week="s4">
+      <button class="week-trigger" onclick="toggleWeek('s4')">
+        <span class="week-num">Semana 4</span>
+        <div class="week-main">
+          <div class="week-title">Claude Code na prática</div>
+          <div class="week-sub">Primeiro contato com IA no terminal, no seu projeto</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s4">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s4">
+
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s4-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s4-1"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeo: "Vibe Code: Do Zero à Produção em 6 DIAS" — Akita</div>
+              <div class="item-desc">O processo real que o Akita usou com Claude Code. Inclui erros e aprendizados.</div>
+              <a class="item-link" href="https://akitaonrails.com" target="_blank">↗ akitaonrails.com</a>
+            </div>
+          </div>
+          <div class="item" data-id="s4-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s4-2"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: "AI Agents: Qual é o melhor?" — Akita (comparativo)</div>
+              <div class="item-desc">Claude Code vs Cursor vs OpenCode vs outros. Bom pra entender o ecossistema.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-label">⚙️ Prática (fim de semana)</div>
+          <div class="item" data-id="s4-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s4-3"></div>
+            <div class="item-content">
+              <div class="item-title">Instalar Claude Code e configurar</div>
+              <div class="item-desc">npm install -g @anthropic-ai/claude-code. Rodar no terminal dentro de um projeto existente.</div>
+              <a class="item-link" href="https://docs.anthropic.com/en/docs/claude-code" target="_blank">↗ docs.anthropic.com/claude-code</a>
+            </div>
+          </div>
+          <div class="item" data-id="s4-4">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s4-4"></div>
+            <div class="item-content">
+              <div class="item-title">Criar o CLAUDE.md do seu projeto</div>
+              <div class="item-desc">Definir linguagem, padrões, o que não fazer, contexto do projeto. Esse arquivo é o "contrato" com a IA.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s4-5">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s4-5"></div>
+            <div class="item-content">
+              <div class="item-title">Pedir ao Claude Code pra refatorar algo real do trabalho</div>
+              <div class="item-desc">Observe o raciocínio dele. Questione o que não entender. Não aceite cegamente.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /s4 -->
+
+  </div><!-- /mes1 -->
+
+  <!-- ============================================================
+       MÊS 2
+  ============================================================ -->
+  <div class="section" id="mes2">
+    <div class="section-header">
+      <span class="section-tag mixed">Mês 2</span>
+      <span class="section-title">Agentes, RAG + System Design</span>
+      <span class="section-line"></span>
+    </div>
+
+    <!-- S5 -->
+    <div class="week-card track-ai" data-week="s5">
+      <button class="week-trigger" onclick="toggleWeek('s5')">
+        <span class="week-num">Semana 5</span>
+        <div class="week-main">
+          <div class="week-title">O que é um Agente de IA</div>
+          <div class="week-sub">Diferença entre chatbot, ferramenta e agente</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s5">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s5">
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s5-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s5-1"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeo: "AI Agents Explained" — Código Fonte TV</div>
+              <div class="item-desc">Explicação em PT-BR do que diferencia um agente de um chatbot: ferramentas, memória, loops.</div>
+              <a class="item-link" href="https://www.youtube.com/@codigofontetv" target="_blank">↗ YouTube @codigofontetv</a>
+            </div>
+          </div>
+          <div class="item" data-id="s5-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s5-2"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: "Hello World de LLM" — Akita</div>
+              <div class="item-desc">Ele monta um agente local com Ollama e explica o ecossistema de múltiplas LLMs.</div>
+              <a class="item-link" href="https://akitaonrails.com/2025/04/25/hello-world-de-llm-criando-seu-proprio-chat-de-i-a-que-roda-local/" target="_blank">↗ akitaonrails.com</a>
+            </div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="group-label">📖 Leitura</div>
+          <div class="item" data-id="s5-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s5-3"></div>
+            <div class="item-content">
+              <div class="item-title">Docs: "Build agents with Claude" — Anthropic</div>
+              <div class="item-desc">Visão geral oficial de como construir agentes. Foca em tool use e loops de raciocínio.</div>
+              <a class="item-link" href="https://docs.anthropic.com/en/docs/agents" target="_blank">↗ docs.anthropic.com</a>
+            </div>
+          </div>
+          <div class="item" data-id="s5-4">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s5-4"></div>
+            <div class="item-content">
+              <div class="item-title">Artigo: MCP (Model Context Protocol) — o que é e por que importa</div>
+              <div class="item-desc">Protocolo que conecta agentes a ferramentas externas. Base do agente que você vai construir.</div>
+              <a class="item-link" href="https://docs.anthropic.com/en/docs/mcp" target="_blank">↗ docs.anthropic.com/mcp</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s5 -->
+
+    <!-- S6 -->
+    <div class="week-card track-ai" data-week="s6">
+      <button class="week-trigger" onclick="toggleWeek('s6')">
+        <span class="week-num">Semana 6</span>
+        <div class="week-main">
+          <div class="week-title">RAG — Retrieval-Augmented Generation</div>
+          <div class="week-sub">Como conectar IA a documentos privados</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s6">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s6">
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s6-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s6-1"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeo: "O que é RAG?" — Código Fonte TV ou Akita</div>
+              <div class="item-desc">Conceito de vector search, embeddings e por que o modelo "esquece" sem RAG.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s6-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s6-2"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: "RAG em produção" — Hipsters.tech</div>
+              <div class="item-desc">Cases reais de RAG em empresas brasileiras.</div>
+            </div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="group-label">📖 Leitura</div>
+          <div class="item" data-id="s6-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s6-3"></div>
+            <div class="item-content">
+              <div class="item-title">Artigo: "RAG Explained Simply" — Towards AI (2026)</div>
+              <div class="item-desc">Explica o problema, a solução e por que RAG virou infraestrutura padrão em 2025.</div>
+              <a class="item-link" href="https://pub.towardsai.net/rag-explained-simply-df1619b43d87" target="_blank">↗ Towards AI</a>
+            </div>
+          </div>
+          <div class="item" data-id="s6-4">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s6-4"></div>
+            <div class="item-content">
+              <div class="item-title">Artigo: "Retrieval-Augmented Generation" — blog da Anthropic</div>
+              <div class="item-desc">Visão técnica de como implementar RAG com Claude. Direto ao ponto.</div>
+              <a class="item-link" href="https://docs.anthropic.com/en/docs/build-with-claude/embeddings" target="_blank">↗ docs.anthropic.com</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s6 -->
+
+    <!-- S7 -->
+    <div class="week-card track-be" data-week="s7">
+      <button class="week-trigger" onclick="toggleWeek('s7')">
+        <span class="week-num">Semana 7</span>
+        <div class="week-main">
+          <div class="week-title">System Design — Fundamentos</div>
+          <div class="week-sub">Como sistemas grandes são projetados e por que isso importa</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s7">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s7">
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s7-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s7-1"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeo: "System Design para iniciantes" — canal ByteByteGo</div>
+              <div class="item-desc">Canal do Alex Xu (autor do livro). Tem vídeos curtos explicando cada conceito.</div>
+              <a class="item-link" href="https://www.youtube.com/@ByteByteGo" target="_blank">↗ YouTube @ByteByteGo</a>
+            </div>
+          </div>
+          <div class="item" data-id="s7-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s7-2"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: Hipsters.tech — "Arquitetura de Software"</div>
+              <div class="item-desc">Contexto BR sobre decisões de arquitetura no dia a dia.</div>
+            </div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="group-label">📖 Livro (começa agora)</div>
+          <div class="item" data-id="s7-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s7-3"></div>
+            <div class="item-content">
+              <div class="item-title">Livro: "System Design Interview" — Alex Xu, Vol. 1 (cap. 1–3)</div>
+              <div class="item-desc">Capítulos 1-3 cobrem: scale from zero, back-of-envelope estimation e framework de entrevista. Base conceitual.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s7 -->
+
+    <!-- S8 -->
+    <div class="week-card track-be" data-week="s8">
+      <button class="week-trigger" onclick="toggleWeek('s8')">
+        <span class="week-num">Semana 8</span>
+        <div class="week-main">
+          <div class="week-title">System Design — Padrões</div>
+          <div class="week-sub">Load balancer, cache, filas, bancos — quando usar cada um</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s8">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s8">
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s8-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s8-1"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeos ByteByteGo: "How does a load balancer work?", "Top caching strategies"</div>
+              <div class="item-desc">Cada vídeo ~10min. Consome 3–4 por semana no carro. São densos e visuais.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s8-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s8-2"></div>
+            <div class="item-content">
+              <div class="item-title">Akitando #143 — "Discutindo sobre Banco de Dados"</div>
+              <div class="item-desc">Do começo ao Big Data. Contexto histórico e decisões práticas.</div>
+            </div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="group-label">📖 Livro</div>
+          <div class="item" data-id="s8-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s8-3"></div>
+            <div class="item-content">
+              <div class="item-title">System Design Interview — Alex Xu, Vol. 1 (cap. 4–6)</div>
+              <div class="item-desc">Rate limiter, consistent hashing, key-value store. Três problemas clássicos com solução detalhada.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s8 -->
+
+  </div><!-- /mes2 -->
+
+  <!-- ============================================================
+       MÊS 3
+  ============================================================ -->
+  <div class="section" id="mes3">
+    <div class="section-header">
+      <span class="section-tag be">Mês 3</span>
+      <span class="section-title">TDD + Segurança</span>
+      <span class="section-line"></span>
+    </div>
+
+    <!-- S9 -->
+    <div class="week-card track-be" data-week="s9">
+      <button class="week-trigger" onclick="toggleWeek('s9')">
+        <span class="week-num">Semana 9</span>
+        <div class="week-main">
+          <div class="week-title">TDD — Mentalidade e Fundamentos</div>
+          <div class="week-sub">Por que testar antes de escrever código muda tudo</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s9">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s9">
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s9-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s9-1"></div>
+            <div class="item-content">
+              <div class="item-title">Série TDD — Otávio Miranda (YouTube)</div>
+              <div class="item-desc">Série em PT-BR, didática e direta. Começa do ciclo Red-Green-Refactor e vai crescendo.</div>
+              <a class="item-link be" href="https://www.youtube.com/@OtavioMiranda" target="_blank">↗ YouTube @OtavioMiranda</a>
+            </div>
+          </div>
+          <div class="item" data-id="s9-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s9-2"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: "TDD na vida real" — Dev na Estrada</div>
+              <div class="item-desc">Devs BR discutindo quando TDD funciona e quando não funciona na prática.</div>
+            </div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="group-label">📖 Livro</div>
+          <div class="item" data-id="s9-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s9-3"></div>
+            <div class="item-content">
+              <div class="item-title">"Test Driven Development by Example" — Kent Beck (cap. 1–3)</div>
+              <div class="item-desc">Os primeiros 3 capítulos são suficientes pra mudar a mentalidade. Leitura fina e rápida.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s9-4">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s9-4"></div>
+            <div class="item-content">
+              <div class="item-title">Prática: escreve seu primeiro teste antes do código</div>
+              <div class="item-desc">Qualquer função simples do seu projeto. O objetivo é sentir o ciclo Red-Green-Refactor.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s9 -->
+
+    <!-- S10 -->
+    <div class="week-card track-be" data-week="s10">
+      <button class="week-trigger" onclick="toggleWeek('s10')">
+        <span class="week-num">Semana 10</span>
+        <div class="week-main">
+          <div class="week-title">TDD + IA — Como testar código gerado</div>
+          <div class="week-sub">O método Akita: testes como controle da IA</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s10">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s10">
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s10-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s10-1"></div>
+            <div class="item-content">
+              <div class="item-title">Blog do Akita: "Do Zero à Pós-Produção em 1 Semana"</div>
+              <div class="item-desc">Como ele usou 1.323 testes pra controlar o Claude Code. Leitura obrigatória antes da prática.</div>
+              <a class="item-link be" href="https://akitaonrails.com/2026/02/20/do-zero-a-pos-producao-em-1-semana-como-usar-ia-em-projetos-de-verdade-bastidores-do-the-m-akita-chronicles/" target="_blank">↗ akitaonrails.com</a>
+            </div>
+          </div>
+          <div class="item" data-id="s10-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s10-2"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeo: "TDD com Python / pytest" — Akitando ou Otávio Miranda</div>
+              <div class="item-desc">Foca na linguagem da sua stack (Python/FastAPI).</div>
+            </div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="group-label">⚙️ Prática</div>
+          <div class="item" data-id="s10-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s10-3"></div>
+            <div class="item-content">
+              <div class="item-title">Pede ao Claude Code pra gerar código e escrever os testes junto</div>
+              <div class="item-desc">Observe se os testes fazem sentido. Questione quando não fizerem. Esse é o ciclo Anti-Vibe.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s10 -->
+
+    <!-- S11 -->
+    <div class="week-card track-be" data-week="s11">
+      <button class="week-trigger" onclick="toggleWeek('s11')">
+        <span class="week-num">Semana 11</span>
+        <div class="week-main">
+          <div class="week-title">Segurança Básica — OWASP Top 10</div>
+          <div class="week-sub">O mínimo que todo backend precisa saber antes de ir pra produção</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s11">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s11">
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s11-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s11-1"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeo: "OWASP Top 10 explicado" — YouTube BR (Hacking na Web)</div>
+              <div class="item-desc">Série cobrindo cada vulnerabilidade com exemplos reais. SQL Injection, XSS, CSRF, IDOR e mais.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s11-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s11-2"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: "Segurança em APIs" — Hipsters.tech</div>
+              <div class="item-desc">Casos práticos de vulnerabilidades em APIs REST.</div>
+            </div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="group-label">📖 Leitura</div>
+          <div class="item" data-id="s11-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s11-3"></div>
+            <div class="item-content">
+              <div class="item-title">Guia: OWASP Top 10 (owasp.org — versão 2021)</div>
+              <div class="item-desc">Guia oficial. Lê pelo menos as 3 primeiras: Broken Access Control, Cryptographic Failures, Injection.</div>
+              <a class="item-link be" href="https://owasp.org/Top10/" target="_blank">↗ owasp.org/Top10</a>
+            </div>
+          </div>
+          <div class="item" data-id="s11-4">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s11-4"></div>
+            <div class="item-content">
+              <div class="item-title">Prática: audite uma API que você já escreveu</div>
+              <div class="item-desc">Pergunte ao Claude Code: "quais vulnerabilidades OWASP esse código pode ter?" Analise a resposta.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s11 -->
+
+    <!-- S12 -->
+    <div class="week-card track-be" data-week="s12">
+      <button class="week-trigger" onclick="toggleWeek('s12')">
+        <span class="week-num">Semana 12</span>
+        <div class="week-main">
+          <div class="week-title">Segurança — Autenticação e Autorização</div>
+          <div class="week-sub">JWT, OAuth, sessões e o que costuma dar errado</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s12">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s12">
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s12-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s12-1"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeo: "JWT: tudo que você precisa saber" — Otávio Miranda</div>
+              <div class="item-desc">Estrutura do token, onde armazenar, como invalidar, ataques comuns.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s12-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s12-2"></div>
+            <div class="item-content">
+              <div class="item-title">Artigo: "Stop using JWT for sessions" — joepie91.nl</div>
+              <div class="item-desc">Contraposição importante. Entender quando JWT é um erro te faz um desenvolvedor mais maduro.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s12 -->
+
+  </div><!-- /mes3 -->
+
+  <!-- ============================================================
+       MÊS 4
+  ============================================================ -->
+  <div class="section" id="mes4">
+    <div class="section-header">
+      <span class="section-tag be">Mês 4</span>
+      <span class="section-title">Cloud (AWS)</span>
+      <span class="section-line"></span>
+    </div>
+
+    <!-- S13 -->
+    <div class="week-card track-be" data-week="s13">
+      <button class="week-trigger" onclick="toggleWeek('s13')">
+        <span class="week-num">Semana 13</span>
+        <div class="week-main">
+          <div class="week-title">AWS — Fundamentos e Computação</div>
+          <div class="week-sub">EC2, VPC, IAM — o que é e quando usar</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s13">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s13">
+        <div class="group">
+          <div class="group-label">🎧 No carro + 🎓 Alura</div>
+          <div class="item" data-id="s13-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s13-1"></div>
+            <div class="item-content">
+              <div class="item-title">Formação AWS — Alura (módulo 1: fundamentos)</div>
+              <div class="item-desc">Consome os vídeos teóricos no carro. EC2, regiões, availability zones, IAM roles.</div>
+              <a class="item-link be" href="https://www.alura.com.br/formacao-amazon-web-services" target="_blank">↗ alura.com.br</a>
+            </div>
+          </div>
+          <div class="item" data-id="s13-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s13-2"></div>
+            <div class="item-content">
+              <div class="item-title">Podcast: "AWS na prática" — Hipsters.tech</div>
+              <div class="item-desc">Contexto real de quem usa AWS em produção no Brasil.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s13-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s13-3"></div>
+            <div class="item-content">
+              <div class="item-title">Prática: sobe uma instância EC2 e conecta via SSH</div>
+              <div class="item-desc">Só isso. Objetivo é desmistificar o console. Termina a instância depois.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s13 -->
+
+    <!-- S14 -->
+    <div class="week-card track-be" data-week="s14">
+      <button class="week-trigger" onclick="toggleWeek('s14')">
+        <span class="week-num">Semana 14</span>
+        <div class="week-main">
+          <div class="week-title">AWS — Armazenamento, Banco e Deploy</div>
+          <div class="week-sub">S3, RDS, e subindo sua primeira API na nuvem</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s14">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s14">
+        <div class="group">
+          <div class="group-label">🎓 Alura + ⚙️ Prática</div>
+          <div class="item" data-id="s14-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s14-1"></div>
+            <div class="item-content">
+              <div class="item-title">Formação AWS — Alura (módulo 2: armazenamento e banco)</div>
+              <div class="item-desc">S3, RDS, diferença entre SQL gerenciado e auto-gerenciado.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s14-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s14-2"></div>
+            <div class="item-content">
+              <div class="item-title">Prática: deploy da sua FastAPI no EC2 com banco RDS</div>
+              <div class="item-desc">Com Claude Code te ajudando. Mas você entende cada passo antes de aplicar.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s14 -->
+
+    <!-- S15-16 -->
+    <div class="week-card track-be" data-week="s15">
+      <button class="week-trigger" onclick="toggleWeek('s15')">
+        <span class="week-num">Sem. 15–16</span>
+        <div class="week-main">
+          <div class="week-title">CI/CD + Monitoramento</div>
+          <div class="week-sub">GitHub Actions, logs, métricas — fechando o loop de produção</div>
+        </div>
+        <div class="week-meta">
+          <span class="week-count" id="count-s15">0/0</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </button>
+      <div class="week-body" id="body-s15">
+        <div class="group">
+          <div class="group-label">🎧 No carro</div>
+          <div class="item" data-id="s15-1">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s15-1"></div>
+            <div class="item-content">
+              <div class="item-title">Vídeo: "GitHub Actions do zero" — Filipe Deschamps ou Rocketseat</div>
+              <div class="item-desc">Pipeline simples: push → test → deploy. Suficiente pra começar.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s15-2">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s15-2"></div>
+            <div class="item-content">
+              <div class="item-title">Artigo: "Observability vs Monitoring" — blog do Martin Fowler</div>
+              <div class="item-desc">Diferença conceitual importante. Logs, métricas e traces têm papéis distintos.</div>
+              <a class="item-link be" href="https://martinfowler.com" target="_blank">↗ martinfowler.com</a>
+            </div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="group-label">⚙️ Prática</div>
+          <div class="item" data-id="s15-3">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s15-3"></div>
+            <div class="item-content">
+              <div class="item-title">Cria um workflow de CI no GitHub Actions que roda seus testes</div>
+              <div class="item-desc">Pull request → testes rodam → merge só se passou. Simples e poderoso.</div>
+            </div>
+          </div>
+          <div class="item" data-id="s15-4">
+            <div class="cb-wrap"><input type="checkbox" class="cb" data-id="s15-4"></div>
+            <div class="item-content">
+              <div class="item-title">Adiciona logs estruturados na sua API e visualiza no CloudWatch</div>
+              <div class="item-desc">Saber que algo quebrou é diferente de saber por quê. Esse é o ponto.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /s15 -->
+
+  </div><!-- /mes4 -->
+
+  <!-- ============================================================
+       DESAFIO FINAL
+  ============================================================ -->
+  <div class="final-section" id="finalSection">
+    <div class="final-header">
+      <div class="final-eyebrow">// missão final</div>
+      <div class="final-title">Desafio Final</div>
+      <div class="final-desc">
+        Construa o agente interno que você sempre quis. Um sistema real que conecta Claude, MCP, GitHub, Outline e Linear — e que você consegue explicar, manter e expandir sozinho. Esse projeto é a prova de que você absorveu as duas trilhas.
+      </div>
+    </div>
+    <div class="final-divider"></div>
+    <div class="final-body" id="finalBody">
+
+      <div class="mission-label">checklist de requisitos</div>
+
+      <div class="final-item" data-id="f1">
+        <div class="cb-wrap"><input type="checkbox" class="cb" data-id="f1"></div>
+        <div class="item-content">
+          <div class="item-title">Agente funcional com Claude via API</div>
+          <div class="item-desc">O agente recebe uma pergunta e responde usando o contexto do projeto. Sem alucinação sobre dados internos.</div>
+        </div>
+      </div>
+      <div class="final-item" data-id="f2">
+        <div class="cb-wrap"><input type="checkbox" class="cb" data-id="f2"></div>
+        <div class="item-content">
+          <div class="item-title">RAG conectado ao Outline (documentação interna)</div>
+          <div class="item-desc">O agente busca na sua base de conhecimento antes de responder. Documentos indexados e atualizados.</div>
+        </div>
+      </div>
+      <div class="final-item" data-id="f3">
+        <div class="cb-wrap"><input type="checkbox" class="cb" data-id="f3"></div>
+        <div class="item-content">
+          <div class="item-title">Integração MCP com GitHub</div>
+          <div class="item-desc">O agente consegue consultar PRs, issues e commits do repositório via MCP.</div>
+        </div>
+      </div>
+      <div class="final-item" data-id="f4">
+        <div class="cb-wrap"><input type="checkbox" class="cb" data-id="f4"></div>
+        <div class="item-content">
+          <div class="item-title">Integração com Linear (tasks e projetos)</div>
+          <div class="item-desc">O agente consegue criar, consultar e atualizar tasks no Linear.</div>
+        </div>
+      </div>
+      <div class="final-item" data-id="f5">
+        <div class="cb-wrap"><input type="checkbox" class="cb" data-id="f5"></div>
+        <div class="item-content">
+          <div class="item-title">Suite de testes cobrindo os fluxos principais (TDD)</div>
+          <div class="item-desc">Não é vibe code. Cada integração tem teste. CI roda antes de qualquer merge.</div>
+        </div>
+      </div>
+      <div class="final-item" data-id="f6">
+        <div class="cb-wrap"><input type="checkbox" class="cb" data-id="f6"></div>
+        <div class="item-content">
+          <div class="item-title">Rodando em cloud (AWS) com deploy automatizado</div>
+          <div class="item-desc">GitHub Actions faz o deploy. Você não sobe na mão.</div>
+        </div>
+      </div>
+      <div class="final-item" data-id="f7">
+        <div class="cb-wrap"><input type="checkbox" class="cb" data-id="f7"></div>
+        <div class="item-content">
+          <div class="item-title">CLAUDE.md documentando a arquitetura e as regras do agente</div>
+          <div class="item-desc">Qualquer outro dev (ou IA) consegue entender o projeto lendo esse arquivo.</div>
+        </div>
+      </div>
+      <div class="final-item" data-id="f8">
+        <div class="cb-wrap"><input type="checkbox" class="cb" data-id="f8"></div>
+        <div class="item-content">
+          <div class="item-title">Segurança revisada: sem credenciais expostas, auth implementada</div>
+          <div class="item-desc">Passa pelo checklist OWASP. Nenhuma vulnerabilidade óbvia.</div>
+        </div>
+      </div>
+
+      <!-- Victory -->
+      <div class="victory" id="victory">
+        <div class="victory-icon">🏆</div>
+        <div class="victory-title">Missão cumprida.</div>
+        <div class="victory-sub">Você construiu o sistema. Você entende o que foi construído. Você consegue expandir. Isso é o que separa quem dirige a IA de quem é substituído por ela.</div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+// ============================================================
+// ESTADO
+// ============================================================
+const STORAGE_KEY = 'roadmap_v1';
+
+function loadState() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch { return {}; }
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const state = loadState();
+
+  // restaura checkboxes
+  document.querySelectorAll('.cb').forEach(cb => {
+    const id = cb.dataset.id;
+    if (state[id]) {
+      cb.checked = true;
+      markItem(cb);
+    }
+    cb.addEventListener('change', () => {
+      const s = loadState();
+      s[cb.dataset.id] = cb.checked;
+      saveState(s);
+      markItem(cb);
+      updateProgress();
+      updateWeekCount(getWeekId(cb));
+      checkVictory();
+    });
+  });
+
+  updateAllCounts();
+  updateProgress();
+  checkVictory();
+
+  // tema
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  applyTheme(savedTheme);
+
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    const current = document.documentElement.dataset.theme || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem('theme', next);
+  });
+
+  // filtros
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilter(btn.dataset.filter);
+    });
+  });
+});
+
+// ============================================================
+// ACCORDION
+// ============================================================
+function toggleWeek(weekId) {
+  const card = document.querySelector(`[data-week="${weekId}"]`);
+  card.classList.toggle('open');
+}
+
+// ============================================================
+// MARCAR ITEM
+// ============================================================
+function markItem(cb) {
+  const item = cb.closest('.item') || cb.closest('.final-item');
+  if (!item) return;
+  if (cb.checked) item.classList.add('done');
+  else item.classList.remove('done');
+
+  // verifica se semana tá completa
+  const card = cb.closest('.week-card');
+  if (card) {
+    const allCbs = card.querySelectorAll('.cb');
+    const allDone = [...allCbs].every(c => c.checked);
+    card.classList.toggle('all-done', allDone);
+  }
+}
+
+// ============================================================
+// PROGRESSO
+// ============================================================
+function updateProgress() {
+  const allCbs = document.querySelectorAll('.cb');
+  const total = allCbs.length;
+  const done  = [...allCbs].filter(c => c.checked).length;
+  const pct   = total ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById('pct').textContent    = pct + '%';
+  document.getElementById('bar').style.width    = pct + '%';
+  document.getElementById('statDone').textContent  = done;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statLeft').textContent  = total - done;
+}
+
+// ============================================================
+// CONTAGEM POR SEMANA
+// ============================================================
+function getWeekId(cb) {
+  const card = cb.closest('[data-week]');
+  return card ? card.dataset.week : null;
+}
+
+function updateWeekCount(weekId) {
+  if (!weekId) return;
+  const card = document.querySelector(`[data-week="${weekId}"]`);
+  if (!card) return;
+  const all  = card.querySelectorAll('.cb').length;
+  const done = [...card.querySelectorAll('.cb')].filter(c => c.checked).length;
+  const el   = document.getElementById(`count-${weekId}`);
+  if (el) el.textContent = `${done}/${all}`;
+}
+
+function updateAllCounts() {
+  document.querySelectorAll('[data-week]').forEach(card => {
+    updateWeekCount(card.dataset.week);
+  });
+  // final section não tem data-week
+  const finalCbs  = document.querySelectorAll('#finalBody .cb');
+  const finalDone = [...finalCbs].filter(c => c.checked).length;
+  // sem contador separado no final por design
+}
+
+// ============================================================
+// VITÓRIA
+// ============================================================
+function checkVictory() {
+  const finalCbs  = document.querySelectorAll('#finalBody .cb');
+  const allDone   = finalCbs.length > 0 && [...finalCbs].every(c => c.checked);
+  const victory   = document.getElementById('victory');
+  const checklist = document.querySelectorAll('.final-item');
+
+  if (allDone) {
+    checklist.forEach(el => el.style.display = 'none');
+    victory.classList.add('show');
+  } else {
+    checklist.forEach(el => el.style.display = '');
+    victory.classList.remove('show');
+  }
+}
+
+// ============================================================
+// TEMA
+// ============================================================
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  const btn = document.getElementById('themeBtn');
+  btn.textContent = theme === 'dark' ? '☀ light mode' : '☾ dark mode';
+}
+
+// ============================================================
+// FILTRO
+// ============================================================
+function applyFilter(filter) {
+  // remove classes de filtro de todos os week-cards
+  document.querySelectorAll('.week-card').forEach(card => {
+    card.classList.remove('filter-done', 'filter-pending', 'hidden');
+  });
+
+  if (filter === 'all') return;
+
+  document.querySelectorAll('.week-card').forEach(card => {
+    const allCbs  = card.querySelectorAll('.cb');
+    const doneCbs = [...allCbs].filter(c => c.checked);
+
+    if (filter === 'done') {
+      // mostra só semanas com pelo menos 1 concluído
+      if (doneCbs.length === 0) {
+        card.classList.add('hidden');
+      } else {
+        card.classList.add('filter-done');
+        card.classList.add('open');
+      }
+    } else if (filter === 'pending') {
+      // mostra só semanas com pendentes
+      if (doneCbs.length === allCbs.length && allCbs.length > 0) {
+        card.classList.add('hidden');
+      } else {
+        card.classList.add('filter-pending');
+        card.classList.add('open');
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
